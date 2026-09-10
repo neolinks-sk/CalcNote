@@ -1,0 +1,95 @@
+"use client";
+
+import { useRef, useState } from "react";
+import SheetSelector from "@/components/Header/SheetSelector";
+import HistoryList from "@/components/History/HistoryList";
+import DrawingCanvas from "@/components/Drawing/DrawingCanvas";
+import DrawingToolbar from "@/components/Drawing/DrawingToolbar";
+import Keypad from "@/components/Calculator/Keypad";
+import AllClearConfirmModal from "@/components/Calculator/AllClearConfirmModal";
+import ImageCardModal from "@/components/Export/ImageCardModal";
+import SeoExplanation from "@/components/Seo/SeoExplanation";
+import { useCalcStore } from "@/store/useCalcStore";
+import { CREDIT_TEXT, HISTORY_AREA_MIN_HEIGHT } from "@/constants";
+import { buildExportFileName, exportNodeAsPng } from "@/utils/exportImage";
+
+export default function Home() {
+  const hasHydrated = useCalcStore((s) => s.hasHydrated);
+  const sheet = useCalcStore((s) => s.getCurrentSheet());
+  const clearActiveItem = useCalcStore((s) => s.clearActiveItem);
+
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  const fileName = buildExportFileName(sheet?.title ?? "calcnote");
+
+  const handleExport = async () => {
+    if (!cardRef.current || isExporting) return;
+    clearActiveItem();
+    setIsExporting(true);
+    setIsModalOpen(true);
+    setImageUrl(null);
+    try {
+      // フォーカス解除のレンダリング反映待ち
+      await new Promise((resolve) => setTimeout(resolve, 40));
+      const dataUrl = await exportNodeAsPng(cardRef.current);
+      setImageUrl(dataUrl);
+    } catch (e) {
+      console.error("[CalcNote] 画像生成に失敗しました", e);
+      setIsModalOpen(false);
+      window.alert("画像の生成に失敗しました。もう一度お試しください。");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  if (!hasHydrated || !sheet) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center text-sm text-slate-400">
+        読み込み中…
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="flex h-dvh flex-col" onClick={() => clearActiveItem()}>
+        <SheetSelector onExport={handleExport} isExporting={isExporting} />
+
+        <div className="flex min-h-0 flex-1 flex-col sm:items-center sm:justify-center sm:overflow-y-auto sm:py-3">
+          <div className="mx-auto flex w-full min-h-0 max-w-[500px] flex-1 flex-col bg-white sm:flex-none sm:h-[min(760px,calc(100dvh-88px))] sm:rounded-2xl sm:shadow-lg sm:ring-1 sm:ring-slate-200">
+            <DrawingToolbar />
+
+            <div ref={cardRef} className="relative flex min-h-0 flex-1 flex-col bg-white">
+              <div
+                className="relative min-h-0 flex-1"
+                style={{ minHeight: HISTORY_AREA_MIN_HEIGHT }}
+              >
+                <HistoryList />
+                <DrawingCanvas />
+              </div>
+              <div className="export-show select-none border-t border-slate-100/70 px-3 py-1.5 text-right text-[10px] tracking-wide text-slate-400">
+                {CREDIT_TEXT}
+              </div>
+            </div>
+
+            <Keypad />
+          </div>
+        </div>
+      </div>
+
+      <SeoExplanation />
+
+      <AllClearConfirmModal />
+
+      <ImageCardModal
+        isOpen={isModalOpen}
+        imageUrl={imageUrl}
+        fileName={fileName}
+        onClose={() => setIsModalOpen(false)}
+      />
+    </>
+  );
+}

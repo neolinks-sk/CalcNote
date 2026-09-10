@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f1f5f9;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-noto-sans-jp);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  height: 100dvh;
+  touch-action: pan-y;
+  overscroll-behavior-y: none;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100dvh;
+  touch-action: pan-y;
+  overscroll-behavior-y: none;
+}
+
+/* モバイル・アプリ内ブラウザ（LINE/Instagram等）のスクロール・バウンス防止 */
+html,
+body {
+  overscroll-behavior: none;
+}
+
+/* 入力位置カーソル（キャレット）の点滅アニメーション */
+@keyframes cursor-blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+.animate-cursor-blink {
+  animation: cursor-blink 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* 入力要素のフォーカス時のスタイル最適化と拡大防止 */
+input,
+textarea,
+select,
+button {
+  touch-action: manipulation;
+}
+
+/* iOS Safariなどのモバイル端末で入力欄フォーカス時に画面がズームするのを防止 */
+@media screen and (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* ==========================================================================
+   画像エクスポート専用スタイル（Clean Export View）
+   「画像として保存」モーダル内およびダウンロードされるPNG画像生成時に適用
+   ========================================================================== */
+.clean-export-mode .export-hide {
+  display: none !important;
+}
+
+/* 計算結果の枠・背景・シャドウ・余白を完全に削除し、プレーンな数値テキストとして描画 */
+.clean-export-mode .export-clean-result,
+.clean-export-mode button.export-clean-result,
+.clean-export-mode [class*="export-clean-result"] {
+  border: none !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  border-color: transparent !important;
+  background-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-shadow: 0 0 #0000 !important;
+  --tw-shadow-colored: 0 0 #0000 !important;
+}
+
+/* アクティブ行のフォーカス枠線、縦バー、キャレット、入力ガイドを完全非表示 */
+.clean-export-mode .animate-cursor-blink,
+.clean-export-mode .export-clean-indicator,
+.clean-export-mode [class*="animate-cursor-blink"] {
+  display: none !important;
+}
+
+/* 全行の背景を透明（白）に統一し、フォーカス時のグレー背景やリングシャドウを完全クリア */
+.clean-export-mode li,
+.clean-export-mode .export-clean-row,
+.clean-export-mode [class*="export-clean-row"] {
+  background-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
+  border-color: rgba(241, 245, 249, 0.9) !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-shadow: 0 0 #0000 !important;
+  --tw-shadow-colored: 0 0 #0000 !important;
+}
+
+/* エクスポート画像専用要素（通常時は非表示、画像エクスポート時のみ表示） */
+.export-show {
+  display: none !important;
+}
+
+.clean-export-mode .export-show {
+  display: block !important;
+}
+
+.clean-export-mode input {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* 手書きSVGおよび手書きCanvasがエクスポート時に最前面で確実に表示されるよう保証 */
+.clean-export-mode svg:not(.export-hide) {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.clean-export-mode canvas {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
