@@ -11,6 +11,8 @@ import SeoExplanation from "@/components/Seo/SeoExplanation";
 import { useCalcStore } from "@/store/useCalcStore";
 import { CREDIT_TEXT, HISTORY_AREA_MIN_HEIGHT } from "@/constants";
 import { buildExportFileName, exportNodeAsPng } from "@/utils/exportImage";
+import type { Stroke } from "@/types";
+import { Loader2 } from "lucide-react";
 
 export default function Home() {
   const hasHydrated = useCalcStore((s) => s.hasHydrated);
@@ -77,9 +79,20 @@ export default function Home() {
     setIsModalOpen(true);
     setImageUrl(null);
     try {
+      // 現在のストロークデータを取得
+      let strokes: Stroke[] = [];
+      if (sheet?.strokeData) {
+        try {
+          const parsed = JSON.parse(sheet.strokeData);
+          if (Array.isArray(parsed)) strokes = parsed;
+        } catch {
+          strokes = [];
+        }
+      }
+
       // フォーカス解除のレンダリング反映待ち
       await new Promise((resolve) => setTimeout(resolve, 50));
-      const dataUrl = await exportNodeAsPng(cardRef.current);
+      const dataUrl = await exportNodeAsPng(cardRef.current, strokes);
       setImageUrl(dataUrl);
     } catch (e) {
       console.error("[CalcNote] 画像生成に失敗しました", e);
@@ -101,7 +114,9 @@ export default function Home() {
   return (
     <>
       <div
-        className="flex h-dvh w-full max-w-[100vw] overflow-x-hidden flex-col"
+        className={`flex h-dvh w-full max-w-[100vw] overflow-x-hidden flex-col ${
+          isExporting ? "pointer-events-none select-none" : ""
+        }`}
         onClick={handleGlobalBackgroundClick}
       >
         <SheetSelector onExport={handleExport} isExporting={isExporting} />
@@ -126,6 +141,22 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* エクスポート中の全画面タッチガード＆ローディングインジケータ */}
+      {isExporting && !imageUrl && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/40 backdrop-blur-xs text-white select-none"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <div className="flex flex-col items-center gap-3 rounded-2xl bg-slate-900/90 px-6 py-5 shadow-2xl ring-1 ring-white/20">
+            <Loader2 size={32} className="animate-spin text-emerald-400" />
+            <p className="text-sm font-bold tracking-wide text-white">
+              画像を生成中…
+            </p>
+          </div>
+        </div>
+      )}
 
       <SeoExplanation />
 

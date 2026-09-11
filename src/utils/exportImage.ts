@@ -1,14 +1,21 @@
 import { toPng } from "html-to-image";
+import type { Stroke, StrokePoint } from "@/types";
 
 /**
- * 指定した要素をレイヤー合成込みで PNG のデータURLへ変換する。
- * html-to-image は内部で <canvas> の現在の描画内容もそのままコピーするため、
- * 手書きキャンバス層とテキスト層(DOM)およびSVG要素が正しく重なった状態で書き出される。
+ * 指定した要素（計算式カード）と手書きストロークをオフスクリーンCanvas上で完全合成し、高解像度PNGを生成する。
  * 
- * エクスポート専用クラス（Clean Export View）を一時的に付与し、
- * 編集用のカーソル・枠線・操作ボタン・吹き出し等を除外した状態でキャプチャする。
+ * 【オフスクリーン確定合成プロセス】
+ * 1. エクスポート専用クラス（.clean-export-mode）でDOMを全高展開し、一時的にスクロールを0に設定。
+ * 2. html-to-image でDOM要素（数式・文字・結果・枠線・クレジット等）を高解像度PNG画像としてレンダリング。
+ * 3. メモリ上に作成したオフスクリーンCanvas（Offscreen Canvas）にDOM画像をベースとして描画。
+ * 4. ヘッダー用Canvasおよびメイン用Canvasの各ストロークデータを、DOM要素の正確な相対座標・レイアウト位置に基づき
+ *    高解像度ベクター描画でオフスクリーンCanvasの最前面へ直接重ね合わせ合成（手書き抜けを100%防止）。
+ * 5. 合成された確定画像を PNG DataURL として出力し、一時Canvasメモリを安全に解放。
  */
-export async function exportNodeAsPng(node: HTMLElement): Promise<string> {
+export async function exportNodeAsPng(
+  node: HTMLElement,
+  strokes?: Stroke[]
+): Promise<string> {
   const exportClass = "clean-export-mode";
   const wasAlreadyClassed = node.classList.contains(exportClass);
 
@@ -42,28 +49,69 @@ export async function exportNodeAsPng(node: HTMLElement): Promise<string> {
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     await new Promise((resolve) => setTimeout(resolve, 80));
 
-    // 3. 手書きCanvasの最新状態（全高展開されたコンテナサイズ・ストローク・scrollTop=0）を強制再描画・完全同期
+    // 3. 手書きCanvasの最新状態（全高展開されたコンテナサイズ）を強制再描画
     if (typeof window !== "undefined") {
       window.dispatchEvent(new Event("calcnote:force-redraw-canvas"));
     }
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    // Canvasレンダリングの完全確定待ち（150ms）
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await new Promise((resolve) => setTimeout(resolve, 120));
+
+    // 4. DOM要素の位置・サイズを計測（オフスクリーン合成時の座標マッピング用）
+    const cardRect = node.getBoundingClientRect();
+    const headerEl =
+      node.querySelector<HTMLElement>('[data-export-header="true"]') ||
+      node.querySelector<HTMLElement>(".border-b");
+    const mainEl =
+      node.querySelector<HTMLElement>('[data-export-main="true"]') ||
+      node.querySelector<HTMLElement>(".min-h-full");
+
+    const headerRect = headerEl ? headerEl.getBoundingClientRect() : null;
+    const mainRect = mainEl ? mainEl.getBoundingClientRect() : null;
+
+    const headerBox = {
+      left: headerRect ? headerRect.left - cardRect.left : 0,
+      top: headerRect ? headerRect.top - cardRect.top : 0,
+      width: headerRect ? headerRect.width : cardRect.width,
+      height: headerRect ? headerRect.height : 60,
+    };
+
+    const mainBox = {
+      left: mainRect ? mainRect.left - cardRect.left : 0,
+      top: mainRect ? mainRect.top - cardRect.top : headerBox.height,
+      width: mainRect ? mainRect.width : cardRect.width,
+      height: mainRect ? mainRect.height : Math.max(100, cardRect.height - headerBox.height),
+    };
+
+    const pixelRatio = typeof window !== "undefined" ? Math.max(2, window.devicePixelRatio || 1) : 2;
 
     const options = {
       cacheBust: true,
-      pixelRatio: typeof window !== "undefined" ? Math.max(2, window.devicePixelRatio || 1) : 2,
+      pixelRatio,
       backgroundColor: "#ffffff",
     };
 
-    // 4. html-to-image のウォームアップ（1回呼んでリソースキャッシュをロードさせ、2回目で確実な結果を取得）
+    // 5. DOMベース画像（文字・数式・枠線レイヤー）のキャプチャ取得
+    let domBasePngUrl: string;
     try {
-      await toPng(node, options);
+      domBasePngUrl = await toPng(node, options);
     } catch {
-      // 1回目のウォームアップエラーは無視
+      // 1回目のウォームアップエラー時は再試行
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      domBasePngUrl = await toPng(node, options);
     }
 
-    return await toPng(node, options);
+    // 6. オフスクリーンCanvasでDOM画像 ＋ 手書きレイヤーの確定合成
+    const finalDataUrl = await synthesizeOffscreenImage({
+      domBasePngUrl,
+      cardWidth: cardRect.width,
+      cardHeight: cardRect.height,
+      headerBox,
+      mainBox,
+      strokes,
+      node,
+    });
+
+    return finalDataUrl;
   } finally {
     if (!wasAlreadyClassed) {
       node.classList.remove(exportClass);
@@ -79,6 +127,115 @@ export async function exportNodeAsPng(node: HTMLElement): Promise<string> {
       window.dispatchEvent(new Event("calcnote:force-redraw-canvas"));
     }
   }
+}
+
+interface SynthesisParams {
+  domBasePngUrl: string;
+  cardWidth: number;
+  cardHeight: number;
+  headerBox: { left: number; top: number; width: number; height: number };
+  mainBox: { left: number; top: number; width: number; height: number };
+  strokes?: Stroke[];
+  node: HTMLElement;
+}
+
+/**
+ * オフスクリーンCanvasを作成し、DOM画像の上に手書きベクター描画またはCanvas描画を完全に合成する
+ */
+async function synthesizeOffscreenImage(params: SynthesisParams): Promise<string> {
+  const { domBasePngUrl, cardWidth, cardHeight, headerBox, mainBox, strokes, node } = params;
+
+  // 1. DOMベース画像を読み込み
+  const img = new Image();
+  img.src = domBasePngUrl;
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error("DOMベース画像のロードに失敗しました"));
+  });
+
+  // 2. オフスクリーンCanvasの作成
+  const offscreen = document.createElement("canvas");
+  offscreen.width = img.naturalWidth || Math.round(cardWidth * 2);
+  offscreen.height = img.naturalHeight || Math.round(cardHeight * 2);
+
+  const ctx = offscreen.getContext("2d");
+  if (!ctx) {
+    return domBasePngUrl;
+  }
+
+  // 3. DOMベース画像を描画
+  ctx.drawImage(img, 0, 0, offscreen.width, offscreen.height);
+
+  const scaleX = offscreen.width / (cardWidth || 1);
+  const scaleY = offscreen.height / (cardHeight || 1);
+
+  // 4. 手書きストロークの合成
+  if (strokes && strokes.length > 0) {
+    // A. ストロークデータからの高精度ベクター直接描画（最優先・100%確実に鮮明）
+    const drawStrokeToBox = (
+      stroke: Stroke,
+      box: { left: number; top: number; width: number; height: number }
+    ) => {
+      if (stroke.points.length === 0) return;
+      ctx.save();
+      ctx.strokeStyle = stroke.color;
+      // スケールに応じた線幅の補正
+      ctx.lineWidth = stroke.width * scaleX;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.beginPath();
+
+      stroke.points.forEach((p: StrokePoint, i: number) => {
+        const px = (box.left + p.x * box.width) * scaleX;
+        const py = (box.top + (p.y <= 1.0 ? p.y * box.height : p.y)) * scaleY;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      });
+      ctx.stroke();
+      ctx.restore();
+    };
+
+    strokes.forEach((stroke) => {
+      if (stroke.target === "header") {
+        drawStrokeToBox(stroke, headerBox);
+      } else {
+        drawStrokeToBox(stroke, mainBox);
+      }
+    });
+  } else {
+    // B. DOM内の実Canvas要素からのフォールバック合成
+    const headerCanvas = node.querySelector<HTMLCanvasElement>('canvas[data-canvas-target="header"]');
+    const mainCanvas = node.querySelector<HTMLCanvasElement>('canvas[data-canvas-target="main"]');
+
+    if (headerCanvas && headerCanvas.width > 0 && headerCanvas.height > 0) {
+      ctx.drawImage(
+        headerCanvas,
+        headerBox.left * scaleX,
+        headerBox.top * scaleY,
+        headerBox.width * scaleX,
+        headerBox.height * scaleY
+      );
+    }
+    if (mainCanvas && mainCanvas.width > 0 && mainCanvas.height > 0) {
+      ctx.drawImage(
+        mainCanvas,
+        mainBox.left * scaleX,
+        mainBox.top * scaleY,
+        mainBox.width * scaleX,
+        mainBox.height * scaleY
+      );
+    }
+  }
+
+  // 5. 最終画像の取得
+  const finalPngDataUrl = offscreen.toDataURL("image/png");
+
+  // 6. オフスクリーンメモリの解放
+  offscreen.width = 0;
+  offscreen.height = 0;
+  img.src = "";
+
+  return finalPngDataUrl;
 }
 
 /**

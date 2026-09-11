@@ -8,10 +8,13 @@ export type Operator = "+" | "-" | "×" | "÷";
 /** 手書きモード / テキスト操作モード */
 export type DrawMode = "text" | "draw";
 
+/** 手書き描画対象レイヤー（ヘッダー部 / メイン計算式スクロール部） */
+export type StrokeTarget = "header" | "main";
+
 /**
  * 手書きストローク（1画分）
- * points は Canvas 要素サイズに対する相対座標 (0〜1) で保持し、
- * どんな画面サイズ・スクロール位置でも位置ズレなく再描画できるようにする。
+ * points は対象 Canvas 要素サイズに対する相対座標 (0〜1) で保持し、
+ * 画面サイズや解像度が変わっても位置ズレなく再描画できるようにする。
  */
 export interface StrokePoint {
   x: number;
@@ -23,6 +26,8 @@ export interface Stroke {
   color: string;
   width: number;
   points: StrokePoint[];
+  /** どのCanvasレイヤーに属するか（"header" | "main", デフォルトは "main"） */
+  target?: StrokeTarget;
 }
 
 /**

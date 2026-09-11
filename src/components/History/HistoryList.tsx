@@ -47,14 +47,15 @@ export default function HistoryList() {
       }`}
       onClick={handleBackgroundClick}
     >
-      {/* タイトル部（ヘッダー領域） */}
+      {/* 1. タイトル部（ヘッダー領域：固定） */}
       <div
         ref={headerRef}
-        className={`shrink-0 border-b border-slate-100 px-3.5 pb-2 transition-all ${
+        data-export-header="true"
+        className={`relative shrink-0 border-b border-slate-100 px-3.5 pb-2 transition-all ${
           isSampleState ? "pt-6 sm:pt-7" : "pt-2.5"
         }`}
       >
-        <div className="relative flex items-center w-full">
+        <div className="relative flex items-center w-full z-10">
           <input
             type="text"
             value={sheet.title}
@@ -79,12 +80,15 @@ export default function HistoryList() {
             className="w-full bg-transparent text-base sm:text-base font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-slate-100/80 rounded px-1 -ml-1 transition-colors"
           />
         </div>
-        <div className="mt-0.5 flex items-center justify-between text-xs text-slate-400">
+        <div className="mt-0.5 flex items-center justify-between text-xs text-slate-400 z-10 relative">
           <span>更新: {formatDateTime(sheet.updatedAt)}</span>
         </div>
+
+        {/* ヘッダー専用の手書きCanvas（ヘッダー内に固定され、スクロールしてもずれない） */}
+        <DrawingCanvas target="header" />
       </div>
 
-      {/* 計算式スクロール領域 */}
+      {/* 2. 計算式スクロール領域（メイン計算エリア） */}
       <div
         ref={scrollContainerRef}
         className={`relative min-h-0 flex-1 overflow-y-auto px-3 cursor-default transition-all ${
@@ -92,8 +96,8 @@ export default function HistoryList() {
         }`}
         onClick={handleBackgroundClick}
       >
-        <div className="relative min-h-full flex flex-col">
-          <ul className="flex flex-col gap-0.5 pb-2">
+        <div data-export-main="true" className="relative min-h-full flex flex-col">
+          <ul className="flex flex-col gap-0.5 pb-2 relative z-10">
             {sheet.items.map((item, index) => (
               <HistoryItemRow
                 key={item.id}
@@ -123,14 +127,11 @@ export default function HistoryList() {
             onClick={handleBackgroundClick}
             aria-hidden="true"
           />
+
+          {/* メイン計算エリア専用の手書きCanvas（計算式DOMと一緒に自然にスクロール） */}
+          <DrawingCanvas target="main" />
         </div>
       </div>
-
-      {/* タイトル部＋計算式リスト部を一体的にカバーする手書きCanvas */}
-      <DrawingCanvas
-        scrollContainerRef={scrollContainerRef}
-        headerRef={headerRef}
-      />
     </div>
   );
 }
