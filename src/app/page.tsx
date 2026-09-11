@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import SheetSelector from "@/components/Header/SheetSelector";
 import HistoryList from "@/components/History/HistoryList";
-import DrawingCanvas from "@/components/Drawing/DrawingCanvas";
 import DrawingToolbar from "@/components/Drawing/DrawingToolbar";
 import Keypad from "@/components/Calculator/Keypad";
 import AllClearConfirmModal from "@/components/Calculator/AllClearConfirmModal";
@@ -64,11 +63,10 @@ export default function Home() {
 
             <div ref={cardRef} className="relative flex min-h-0 flex-1 flex-col bg-white">
               <div
-                className="relative min-h-0 flex-1"
+                className="relative min-h-0 flex-1 flex flex-col"
                 style={{ minHeight: HISTORY_AREA_MIN_HEIGHT }}
               >
                 <HistoryList />
-                <DrawingCanvas />
               </div>
               <div className="export-show select-none border-t border-slate-100/70 px-3 py-1.5 text-right text-[10px] tracking-wide text-slate-400">
                 {CREDIT_TEXT}

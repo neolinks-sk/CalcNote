@@ -46,7 +46,7 @@ export default function HistoryItemRow({ item, index, isLast }: HistoryItemProps
     setActiveItemId(item.id);
     setIsMemoOpen(true);
     window.setTimeout(() => {
-      memoInputRef.current?.focus();
+      memoInputRef.current?.focus({ preventScroll: true });
     }, 50);
   };
 
@@ -54,6 +54,9 @@ export default function HistoryItemRow({ item, index, isLast }: HistoryItemProps
     if (!item.memo || item.memo.trim() === "") {
       setIsMemoOpen(false);
       updateItemMemo(item.id, "");
+    }
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }
   };
 
@@ -328,7 +331,12 @@ export default function HistoryItemRow({ item, index, isLast }: HistoryItemProps
               value={item.memo}
               onChange={(e) => updateItemMemo(item.id, e.target.value)}
               onClick={(e) => e.stopPropagation()}
-              onFocus={() => setActiveItemId(item.id)}
+              onFocus={() => {
+                setActiveItemId(item.id);
+                if (typeof window !== "undefined") {
+                  window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                }
+              }}
               onBlur={handleMemoBlur}
               maxLength={MEMO_MAX_LENGTH}
               placeholder="メモを入力…（例：割り勘・材料費 など）"

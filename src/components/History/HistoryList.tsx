@@ -5,6 +5,7 @@ import { useCalcStore } from "@/store/useCalcStore";
 import { formatDateTime } from "@/utils/format";
 import { DEFAULT_SHEET_TITLE } from "@/utils/validation";
 import HistoryItemRow from "./HistoryItem";
+import DrawingCanvas from "@/components/Drawing/DrawingCanvas";
 
 export default function HistoryList() {
   const sheet = useCalcStore((s) => s.getCurrentSheet());
@@ -29,10 +30,18 @@ export default function HistoryList() {
             type="text"
             value={sheet.title}
             onClick={(e) => e.stopPropagation()}
+            onFocus={() => {
+              if (typeof window !== "undefined") {
+                window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+              }
+            }}
             onChange={(e) => renameSheet(sheet.id, e.target.value)}
             onBlur={(e) => {
               const trimmed = e.target.value.trim();
               renameSheet(sheet.id, trimmed === "" ? DEFAULT_SHEET_TITLE : trimmed.slice(0, 60));
+              if (typeof window !== "undefined") {
+                window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+              }
             }}
             placeholder={DEFAULT_SHEET_TITLE}
             aria-label="シート名"
@@ -45,32 +54,37 @@ export default function HistoryList() {
       </div>
 
       <div
-        className={`min-h-0 flex-1 overflow-y-auto px-3 cursor-default transition-all ${isSampleState ? "pt-7 pb-3" : "py-2"}`}
+        className={`relative min-h-0 flex-1 overflow-y-auto px-3 cursor-default transition-all ${isSampleState ? "pt-7 pb-3" : "py-2"}`}
         onClick={() => clearActiveItem()}
       >
-        <ul className="flex flex-col gap-0.5 pb-3">
-          {sheet.items.map((item, index) => (
-            <HistoryItemRow
-              key={item.id}
-              item={item}
-              index={index}
-              isLast={index === sheet.items.length - 1}
-            />
-          ))}
-          <li className="pt-2 export-hide">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                addNewLine();
-              }}
-              className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-slate-200 py-2 text-xs font-semibold text-slate-400 transition hover:border-slate-400 hover:text-slate-600 active:scale-98"
-            >
-              <Plus size={14} />
-              新しい行を追加
-            </button>
-          </li>
-        </ul>
+        <div className="relative min-h-full">
+          <ul className="flex flex-col gap-0.5 pb-3">
+            {sheet.items.map((item, index) => (
+              <HistoryItemRow
+                key={item.id}
+                item={item}
+                index={index}
+                isLast={index === sheet.items.length - 1}
+              />
+            ))}
+            <li className="pt-2 export-hide">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addNewLine();
+                }}
+                className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-slate-200 py-2 text-xs font-semibold text-slate-400 transition hover:border-slate-400 hover:text-slate-600 active:scale-98"
+              >
+                <Plus size={14} />
+                新しい行を追加
+              </button>
+            </li>
+          </ul>
+
+          {/* 計算行リストと同じスクロール座標系・全高領域に配置される手書きCanvas */}
+          <DrawingCanvas />
+        </div>
       </div>
     </div>
   );
