@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { Plus } from "lucide-react";
 import { useCalcStore } from "@/store/useCalcStore";
 import { formatDateTime } from "@/utils/format";
@@ -8,6 +9,9 @@ import HistoryItemRow from "./HistoryItem";
 import DrawingCanvas from "@/components/Drawing/DrawingCanvas";
 
 export default function HistoryList() {
+  const headerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   const sheet = useCalcStore((s) => s.getCurrentSheet());
   const renameSheet = useCalcStore((s) => s.renameSheet);
   const addNewLine = useCalcStore((s) => s.addNewLine);
@@ -18,13 +22,38 @@ export default function HistoryList() {
 
   if (!sheet) return null;
 
+  const handleBackgroundClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement | null;
+    if (
+      target &&
+      (target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.closest("button") ||
+        target.closest("input") ||
+        target.closest("textarea"))
+    ) {
+      return;
+    }
+    clearActiveItem();
+    if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  };
+
   return (
     <div
-      className={`flex h-full flex-col ${
-        isDrawMode ? "pointer-events-none select-none" : ""
+      className={`relative flex h-full flex-col ${
+        isDrawMode ? "select-none" : ""
       }`}
+      onClick={handleBackgroundClick}
     >
-      <div className={`shrink-0 border-b border-slate-100 px-3.5 pb-2 transition-all ${isSampleState ? "pt-6 sm:pt-7" : "pt-2.5"}`}>
+      {/* タイトル部（ヘッダー領域） */}
+      <div
+        ref={headerRef}
+        className={`shrink-0 border-b border-slate-100 px-3.5 pb-2 transition-all ${
+          isSampleState ? "pt-6 sm:pt-7" : "pt-2.5"
+        }`}
+      >
         <div className="relative flex items-center w-full">
           <input
             type="text"
@@ -33,6 +62,8 @@ export default function HistoryList() {
             onFocus={() => {
               if (typeof window !== "undefined") {
                 window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                requestAnimationFrame(() => window.scrollTo(0, 0));
+                setTimeout(() => window.scrollTo(0, 0), 50);
               }
             }}
             onChange={(e) => renameSheet(sheet.id, e.target.value)}
@@ -53,12 +84,16 @@ export default function HistoryList() {
         </div>
       </div>
 
+      {/* 計算式スクロール領域 */}
       <div
-        className={`relative min-h-0 flex-1 overflow-y-auto px-3 cursor-default transition-all ${isSampleState ? "pt-7 pb-3" : "py-2"}`}
-        onClick={() => clearActiveItem()}
+        ref={scrollContainerRef}
+        className={`relative min-h-0 flex-1 overflow-y-auto px-3 cursor-default transition-all ${
+          isSampleState ? "pt-7 pb-3" : "py-2"
+        }`}
+        onClick={handleBackgroundClick}
       >
-        <div className="relative min-h-full">
-          <ul className="flex flex-col gap-0.5 pb-3">
+        <div className="relative min-h-full flex flex-col">
+          <ul className="flex flex-col gap-0.5 pb-2">
             {sheet.items.map((item, index) => (
               <HistoryItemRow
                 key={item.id}
@@ -82,10 +117,20 @@ export default function HistoryList() {
             </li>
           </ul>
 
-          {/* 計算行リストと同じスクロール座標系・全高領域に配置される手書きCanvas */}
-          <DrawingCanvas />
+          {/* 最下行入力時でも背景タップで確実に編集確定（blur）できる十分な余白領域 */}
+          <div
+            className="min-h-[140px] sm:min-h-[100px] w-full flex-1 cursor-default export-hide"
+            onClick={handleBackgroundClick}
+            aria-hidden="true"
+          />
         </div>
       </div>
+
+      {/* タイトル部＋計算式リスト部を一体的にカバーする手書きCanvas */}
+      <DrawingCanvas
+        scrollContainerRef={scrollContainerRef}
+        headerRef={headerRef}
+      />
     </div>
   );
 }

@@ -12,9 +12,25 @@ export async function exportNodeAsPng(node: HTMLElement): Promise<string> {
   const exportClass = "clean-export-mode";
   const wasAlreadyClassed = node.classList.contains(exportClass);
 
+  // キャプチャ前のスクロール位置を一時退避し、エクスポート時は 0 にリセット
+  const scrollContainers = Array.from(
+    node.querySelectorAll<HTMLElement>(".overflow-y-auto, [class*='overflow-y-']")
+  );
+  const originalScrolls = scrollContainers.map((el) => ({
+    el,
+    top: el.scrollTop,
+    left: el.scrollLeft,
+  }));
+
   if (!wasAlreadyClassed) {
     node.classList.add(exportClass);
   }
+
+  // スクロールコンテナのスクロールを 0 に設定（全高キャプチャ用）
+  scrollContainers.forEach((el) => {
+    el.scrollTop = 0;
+    el.scrollLeft = 0;
+  });
 
   try {
     // 1. フォント読み込み完了を待機
@@ -26,7 +42,7 @@ export async function exportNodeAsPng(node: HTMLElement): Promise<string> {
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     await new Promise((resolve) => setTimeout(resolve, 80));
 
-    // 3. 手書きCanvasの最新状態（全高展開されたコンテナサイズ・ストローク）を確実に強制再描画・同期
+    // 3. 手書きCanvasの最新状態（全高展開されたコンテナサイズ・ストローク・scrollTop=0）を強制再描画・完全同期
     if (typeof window !== "undefined") {
       window.dispatchEvent(new Event("calcnote:force-redraw-canvas"));
     }
@@ -52,6 +68,12 @@ export async function exportNodeAsPng(node: HTMLElement): Promise<string> {
     if (!wasAlreadyClassed) {
       node.classList.remove(exportClass);
     }
+    // スクロール位置の復元
+    originalScrolls.forEach(({ el, top, left }) => {
+      el.scrollTop = top;
+      el.scrollLeft = left;
+    });
+
     // 復元後にもCanvasを通常サイズへ再同期
     if (typeof window !== "undefined") {
       window.dispatchEvent(new Event("calcnote:force-redraw-canvas"));

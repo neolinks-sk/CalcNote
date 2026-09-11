@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SheetSelector from "@/components/Header/SheetSelector";
 import HistoryList from "@/components/History/HistoryList";
 import DrawingToolbar from "@/components/Drawing/DrawingToolbar";
@@ -24,15 +24,61 @@ export default function Home() {
 
   const fileName = buildExportFileName(sheet?.title ?? "calcnote");
 
+  // モバイル入力時の画面横揺れ・不要なwindowスクロールの自動防止
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleFocusIn = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      requestAnimationFrame(() => window.scrollTo(0, 0));
+    };
+
+    const handleScroll = () => {
+      // window全体の横スクロールや不要な縦スクロールが発生した場合にリセット
+      if (window.scrollX !== 0 || (window.scrollY !== 0 && !document.querySelector(".modal-open"))) {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      }
+    };
+
+    window.addEventListener("focusin", handleFocusIn, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("focusin", handleFocusIn);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const handleGlobalBackgroundClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement | null;
+    if (
+      target &&
+      (target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.closest("button") ||
+        target.closest("input") ||
+        target.closest("textarea"))
+    ) {
+      return;
+    }
+    clearActiveItem();
+    if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  };
+
   const handleExport = async () => {
     if (!cardRef.current || isExporting) return;
+    if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
     clearActiveItem();
     setIsExporting(true);
     setIsModalOpen(true);
     setImageUrl(null);
     try {
       // フォーカス解除のレンダリング反映待ち
-      await new Promise((resolve) => setTimeout(resolve, 40));
+      await new Promise((resolve) => setTimeout(resolve, 50));
       const dataUrl = await exportNodeAsPng(cardRef.current);
       setImageUrl(dataUrl);
     } catch (e) {
@@ -54,7 +100,10 @@ export default function Home() {
 
   return (
     <>
-      <div className="flex h-dvh flex-col" onClick={() => clearActiveItem()}>
+      <div
+        className="flex h-dvh w-full max-w-[100vw] overflow-x-hidden flex-col"
+        onClick={handleGlobalBackgroundClick}
+      >
         <SheetSelector onExport={handleExport} isExporting={isExporting} />
 
         <div className="flex min-h-0 flex-1 flex-col sm:items-center sm:justify-center sm:overflow-y-auto sm:py-3">
