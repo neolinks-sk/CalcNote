@@ -318,7 +318,10 @@ export default function HistoryItemRow({ item, index, isLast }: HistoryItemProps
             transition={{ duration: 0.15 }}
             className="mt-1 flex items-center gap-1.5 pl-6 sm:pl-7 pr-1 overflow-hidden"
           >
-            <Pencil size={12} strokeWidth={2} className="text-slate-400 shrink-0 select-none" />
+            {/* メモが空（未入力）のときのみ鉛筆アイコンを表示し、テキスト入力後は非表示 */}
+            {(!item.memo || item.memo.trim() === "") && (
+              <Pencil size={12} strokeWidth={2} className="text-slate-400 shrink-0 select-none" />
+            )}
             <input
               ref={memoInputRef}
               type="text"
@@ -330,7 +333,7 @@ export default function HistoryItemRow({ item, index, isLast }: HistoryItemProps
               maxLength={MEMO_MAX_LENGTH}
               placeholder="メモを入力…（例：割り勘・材料費 など）"
               aria-label={`行 ${index + 1} のメモ`}
-              className="w-full rounded border-none bg-transparent py-0.5 text-base sm:text-sm text-slate-600 placeholder:text-slate-300 placeholder:italic focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-300"
+              className="w-full rounded border-none bg-transparent py-0.5 text-base text-slate-600 placeholder:text-slate-300 placeholder:italic focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-300"
             />
             {item.memo && (
               <button

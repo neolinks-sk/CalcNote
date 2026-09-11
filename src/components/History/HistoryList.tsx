@@ -12,11 +12,17 @@ export default function HistoryList() {
   const addNewLine = useCalcStore((s) => s.addNewLine);
   const clearActiveItem = useCalcStore((s) => s.clearActiveItem);
   const isSampleState = useCalcStore((s) => s.isSampleState);
+  const mode = useCalcStore((s) => s.mode);
+  const isDrawMode = mode === "draw";
 
   if (!sheet) return null;
 
   return (
-    <div className="flex h-full flex-col">
+    <div
+      className={`flex h-full flex-col ${
+        isDrawMode ? "pointer-events-none select-none" : ""
+      }`}
+    >
       <div className={`shrink-0 border-b border-slate-100 px-3.5 pb-2 transition-all ${isSampleState ? "pt-6 sm:pt-7" : "pt-2.5"}`}>
         <div className="relative flex items-center w-full">
           <input

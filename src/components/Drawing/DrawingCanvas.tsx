@@ -94,6 +94,28 @@ export default function DrawingCanvas() {
     redraw();
   }, [redraw, currentSheetId, hasHydrated]);
 
+  // 画像エクスポート時の強制再描画イベントを購読
+  useEffect(() => {
+    const handleForceRedraw = () => {
+      const container = containerRef.current;
+      const canvas = canvasRef.current;
+      if (!container || !canvas) return;
+
+      const rect = container.getBoundingClientRect();
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      const w = Math.max(1, Math.round(rect.width * dpr));
+      const h = Math.max(1, Math.round(rect.height * dpr));
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+      }
+      redraw();
+    };
+
+    window.addEventListener("calcnote:force-redraw-canvas", handleForceRedraw);
+    return () => window.removeEventListener("calcnote:force-redraw-canvas", handleForceRedraw);
+  }, [redraw]);
+
   const relativePoint = (e: ReactPointerEvent<HTMLCanvasElement>): StrokePoint => {
     const canvas = canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
@@ -144,7 +166,7 @@ export default function DrawingCanvas() {
   return (
     <div
       ref={containerRef}
-      className="pointer-events-none absolute inset-0 z-10"
+      className="pointer-events-none absolute inset-0 z-20"
       aria-hidden={mode !== "draw"}
     >
       <canvas

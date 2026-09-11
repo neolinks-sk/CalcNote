@@ -81,7 +81,7 @@ export default function SheetSelector({ onExport, isExporting }: SheetSelectorPr
             aria-label="シートを選択"
             value={currentSheetId ?? ""}
             onChange={(e) => selectSheet(e.target.value)}
-            className={`w-full min-w-0 truncate rounded-lg border bg-white px-2 sm:px-2.5 py-1.5 text-xs sm:text-sm font-medium text-slate-700 focus:outline-none transition-all shadow-2xs ${
+            className={`w-full min-w-0 truncate rounded-lg border bg-white px-2 sm:px-2.5 py-1.5 text-base sm:text-sm font-medium text-slate-700 focus:outline-none transition-all shadow-2xs ${
               isSaveToastOpen
                 ? "border-emerald-500 bg-emerald-50/70 ring-2 ring-emerald-400 font-bold text-emerald-900 scale-[1.01]"
                 : "border-slate-300 focus:border-slate-500"

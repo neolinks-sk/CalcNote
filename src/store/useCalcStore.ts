@@ -764,7 +764,13 @@ export const useCalcStore = create<CalcState>()(
           });
         },
 
-        setMode: (mode) => set({ mode }),
+        setMode: (mode) => {
+          if (mode === "draw") {
+            set({ mode, activeItemId: null });
+          } else {
+            set({ mode });
+          }
+        },
         setPenColor: (color) => set({ penColor: color }),
         setPenWidth: (width) => set({ penWidth: width }),
         clearErrorMessage: () => set({ errorMessage: null }),

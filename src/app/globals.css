@@ -54,13 +54,12 @@ button {
   touch-action: manipulation;
 }
 
-/* iOS Safariなどのモバイル端末で入力欄フォーカス時に画面がズームするのを防止 */
-@media screen and (max-width: 640px) {
-  input,
-  select,
-  textarea {
-    font-size: 16px !important;
-  }
+/* iOS Safariなどのモバイル端末で入力欄フォーカス時に画面が自動ズームするのを防止（全デバイスで16px以上を徹底） */
+input,
+select,
+textarea {
+  font-size: 16px !important;
+  touch-action: manipulation;
 }
 
 /* ==========================================================================

@@ -22,9 +22,16 @@ export async function exportNodeAsPng(node: HTMLElement): Promise<string> {
       await (document as Document & { fonts: { ready: Promise<unknown> } }).fonts.ready;
     }
 
-    // 2. スタイル適用・DOMレイアウト確定・Canvas/SVG再描画の待機
+    // 2. スタイル適用・DOMレイアウト確定の待機
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    await new Promise((resolve) => setTimeout(resolve, 80));
+    await new Promise((resolve) => setTimeout(resolve, 60));
+
+    // 3. 手書きCanvasの最新状態（サイズ・ストローク）を確実に強制再描画・同期
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("calcnote:force-redraw-canvas"));
+    }
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    await new Promise((resolve) => setTimeout(resolve, 40));
 
     const options = {
       cacheBust: true,
@@ -32,7 +39,7 @@ export async function exportNodeAsPng(node: HTMLElement): Promise<string> {
       backgroundColor: "#ffffff",
     };
 
-    // 3. html-to-image のウォームアップ（1回呼んでリソースキャッシュをロードさせ、2回目で確実な結果を取得）
+    // 4. html-to-image のウォームアップ（1回呼んでリソースキャッシュをロードさせ、2回目で確実な結果を取得）
     try {
       await toPng(node, options);
     } catch {
