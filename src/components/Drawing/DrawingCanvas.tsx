@@ -66,28 +66,34 @@ export default function DrawingCanvas() {
   }, [getStrokes]);
 
   // キャンバスの実サイズ（バッキングストア）をコンテナのCSSサイズ + devicePixelRatioに追従させる
-  useEffect(() => {
+  const updateCanvasDimensionsAndRedraw = useCallback(() => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
     if (!container || !canvas) return;
 
-    const resize = () => {
-      const rect = container.getBoundingClientRect();
-      const dpr = Math.max(1, window.devicePixelRatio || 1);
-      const w = Math.max(1, Math.round(rect.width * dpr));
-      const h = Math.max(1, Math.round(rect.height * dpr));
-      if (canvas.width !== w || canvas.height !== h) {
-        canvas.width = w;
-        canvas.height = h;
-      }
-      redraw();
-    };
+    const rect = container.getBoundingClientRect();
+    const width = rect.width || container.offsetWidth || 500;
+    const height = rect.height || container.offsetHeight || container.scrollHeight || 300;
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const w = Math.max(1, Math.round(width * dpr));
+    const h = Math.max(1, Math.round(height * dpr));
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
+    redraw();
+  }, [redraw]);
 
-    resize();
-    const ro = new ResizeObserver(resize);
+  // リサイズ監視
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    updateCanvasDimensionsAndRedraw();
+    const ro = new ResizeObserver(updateCanvasDimensionsAndRedraw);
     ro.observe(container);
     return () => ro.disconnect();
-  }, [redraw]);
+  }, [updateCanvasDimensionsAndRedraw]);
 
   // 保存データ or シート切り替え時に再描画
   useEffect(() => {
@@ -97,24 +103,12 @@ export default function DrawingCanvas() {
   // 画像エクスポート時の強制再描画イベントを購読
   useEffect(() => {
     const handleForceRedraw = () => {
-      const container = containerRef.current;
-      const canvas = canvasRef.current;
-      if (!container || !canvas) return;
-
-      const rect = container.getBoundingClientRect();
-      const dpr = Math.max(1, window.devicePixelRatio || 1);
-      const w = Math.max(1, Math.round(rect.width * dpr));
-      const h = Math.max(1, Math.round(rect.height * dpr));
-      if (canvas.width !== w || canvas.height !== h) {
-        canvas.width = w;
-        canvas.height = h;
-      }
-      redraw();
+      updateCanvasDimensionsAndRedraw();
     };
 
     window.addEventListener("calcnote:force-redraw-canvas", handleForceRedraw);
     return () => window.removeEventListener("calcnote:force-redraw-canvas", handleForceRedraw);
-  }, [redraw]);
+  }, [updateCanvasDimensionsAndRedraw]);
 
   const relativePoint = (e: ReactPointerEvent<HTMLCanvasElement>): StrokePoint => {
     const canvas = canvasRef.current!;

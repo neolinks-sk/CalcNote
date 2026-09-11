@@ -66,6 +66,26 @@ textarea {
    画像エクスポート専用スタイル（Clean Export View）
    「画像として保存」モーダル内およびダウンロードされるPNG画像生成時に適用
    ========================================================================== */
+.clean-export-mode {
+  height: auto !important;
+  max-height: none !important;
+  min-height: auto !important;
+  overflow: visible !important;
+  flex: none !important;
+}
+
+.clean-export-mode * {
+  max-height: none !important;
+}
+
+.clean-export-mode .overflow-y-auto,
+.clean-export-mode [class*="overflow-y-"] {
+  overflow: visible !important;
+  height: auto !important;
+  max-height: none !important;
+  flex: none !important;
+}
+
 .clean-export-mode .export-hide {
   display: none !important;
 }

@@ -22,16 +22,17 @@ export async function exportNodeAsPng(node: HTMLElement): Promise<string> {
       await (document as Document & { fonts: { ready: Promise<unknown> } }).fonts.ready;
     }
 
-    // 2. スタイル適用・DOMレイアウト確定の待機
+    // 2. スタイル適用・DOMレイアウト確定（全高展開）の待機
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    await new Promise((resolve) => setTimeout(resolve, 60));
+    await new Promise((resolve) => setTimeout(resolve, 80));
 
-    // 3. 手書きCanvasの最新状態（サイズ・ストローク）を確実に強制再描画・同期
+    // 3. 手書きCanvasの最新状態（全高展開されたコンテナサイズ・ストローク）を確実に強制再描画・同期
     if (typeof window !== "undefined") {
       window.dispatchEvent(new Event("calcnote:force-redraw-canvas"));
     }
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-    await new Promise((resolve) => setTimeout(resolve, 40));
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    // Canvasレンダリングの完全確定待ち（150ms）
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
     const options = {
       cacheBust: true,
@@ -50,6 +51,10 @@ export async function exportNodeAsPng(node: HTMLElement): Promise<string> {
   } finally {
     if (!wasAlreadyClassed) {
       node.classList.remove(exportClass);
+    }
+    // 復元後にもCanvasを通常サイズへ再同期
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("calcnote:force-redraw-canvas"));
     }
   }
 }
