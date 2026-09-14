@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import {
+  ArrowRight,
   BookOpen,
   Calculator,
   Edit3,
@@ -8,9 +10,11 @@ import {
   Image as ImageIcon,
   Info,
   MessageSquare,
+  Newspaper,
   Pencil,
   Sparkles,
 } from "lucide-react";
+import { COLUMNS } from "@/data/columns";
 
 interface StepItem {
   icon: typeof FilePlus;
@@ -89,6 +93,8 @@ const FAQS = [
 ];
 
 export default function SeoExplanation() {
+  const previewColumns = COLUMNS.slice(0, 3);
+
   return (
     <section className="mx-auto w-full max-w-[500px] px-4 py-10 text-slate-700">
       <div className="space-y-8">
@@ -155,6 +161,57 @@ export default function SeoExplanation() {
           </div>
         </div>
 
+        {/* お役立ちコラム導線セクション */}
+        <div>
+          <div className="flex items-center justify-between">
+            <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
+              <Newspaper size={18} className="text-slate-700 shrink-0" />
+              <span>お役立ちコラム</span>
+            </h2>
+            <Link
+              href="/column"
+              className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-800 transition"
+            >
+              <span>もっと見る</span>
+              <ArrowRight size={13} />
+            </Link>
+          </div>
+
+          <div className="mt-3 space-y-2.5">
+            {previewColumns.map((col) => (
+              <Link
+                key={col.slug}
+                href={`/column/${col.slug}`}
+                className="group flex flex-col rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs transition hover:border-slate-300 hover:shadow-sm"
+              >
+                <div className="flex items-center justify-between text-[11px] text-slate-400">
+                  <span className="font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">
+                    {col.category}
+                  </span>
+                  <time dateTime={col.date}>{col.date}</time>
+                </div>
+                <h3 className="mt-1.5 text-xs sm:text-sm font-bold text-slate-800 group-hover:text-emerald-700 transition-colors line-clamp-2">
+                  {col.title}
+                </h3>
+                <p className="mt-1 text-xs text-slate-500 line-clamp-2">
+                  {col.description}
+                </p>
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-3 text-center">
+            <Link
+              href="/column"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white py-2.5 text-xs sm:text-sm font-bold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:border-slate-400 active:scale-98"
+            >
+              <BookOpen size={15} />
+              <span>お役立ちコラム一覧を見る（全{COLUMNS.length}編）</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+
         {/* よくある質問（FAQ） */}
         <div>
           <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
@@ -179,7 +236,16 @@ export default function SeoExplanation() {
         </div>
 
         <footer className="pt-4 text-center text-xs text-slate-400">
-          © 2026 CalcNote. All rights reserved.
+          <div className="mb-2 flex items-center justify-center gap-4 text-xs font-medium text-slate-500">
+            <Link href="/" className="hover:text-slate-800 transition">
+              アプリトップ
+            </Link>
+            <span>•</span>
+            <Link href="/column" className="hover:text-slate-800 transition">
+              お役立ちコラム
+            </Link>
+          </div>
+          <p>© 2026 CalcNote. All rights reserved.</p>
         </footer>
       </div>
     </section>

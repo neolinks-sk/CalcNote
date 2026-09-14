@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import SheetSelector from "@/components/Header/SheetSelector";
 import HistoryList from "@/components/History/HistoryList";
 import DrawingToolbar from "@/components/Drawing/DrawingToolbar";
@@ -13,6 +14,33 @@ import { CREDIT_TEXT, HISTORY_AREA_MIN_HEIGHT } from "@/constants";
 import { buildExportFileName, exportNodeAsPng } from "@/utils/exportImage";
 import type { Stroke } from "@/types";
 import { Loader2 } from "lucide-react";
+
+/**
+ * URLクエリパラメータ (?tab=calculator | handwriting | export) に応じて
+ * モード切替やフォーカス誘導を行うハンドラー
+ */
+function TabQueryHandler() {
+  const searchParams = useSearchParams();
+  const setMode = useCalcStore((s) => s.setMode);
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (!tab) return;
+
+    if (tab === "handwriting") {
+      setMode("draw");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (tab === "calculator") {
+      setMode("text");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (tab === "export") {
+      setMode("text");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [searchParams, setMode]);
+
+  return null;
+}
 
 export default function Home() {
   const hasHydrated = useCalcStore((s) => s.hasHydrated);
@@ -113,6 +141,10 @@ export default function Home() {
 
   return (
     <>
+      <Suspense fallback={null}>
+        <TabQueryHandler />
+      </Suspense>
+
       <div
         className={`flex h-dvh w-full max-w-[100vw] overflow-x-hidden flex-col ${
           isExporting ? "pointer-events-none select-none" : ""

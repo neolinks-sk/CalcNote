@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["192.168.3.11"],
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
   },
 };
 
