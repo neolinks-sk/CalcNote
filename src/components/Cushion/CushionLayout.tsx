@@ -41,14 +41,17 @@ export default function CushionLayout({
   const Icon = ICON_MAP[type];
 
   const handleOpenExternal = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // 確実に新しい独立ウィンドウ/タブとして開き、window.openerの参照を完全に切断する
-    e.preventDefault();
-    const newWindow = window.open(targetUrl, "_blank", "noopener,noreferrer");
-    if (newWindow) {
-      newWindow.opener = null;
-    } else {
-      // ポップアップブロック等で開けなかった場合のフォールバック
-      window.location.href = targetUrl;
+    // スマホ・PC環境問わず、同一タブ遷移（戻るでアプリに迷い戻る現象）を完全に防止
+    try {
+      const newTab = window.open(targetUrl, "_blank", "noopener,noreferrer");
+      if (newTab) {
+        newTab.opener = null;
+        e.preventDefault(); // window.openが成功した場合はネイティブ挙動をキャンセルして二重オープンを防止
+      }
+      // モバイルSafari等のポップアップ制御でnewTabがnullの場合はpreventDefaultせず、
+      // <a> タグの target="_blank" rel="noopener noreferrer" によるネイティブ新タブ遷移を実行させる
+    } catch {
+      // 例外時も <a> タグのネイティブ target="_blank" に委ねる
     }
   };
 
