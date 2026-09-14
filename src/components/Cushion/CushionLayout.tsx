@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -40,15 +41,57 @@ export default function CushionLayout({
 }: CushionLayoutProps) {
   const Icon = ICON_MAP[type];
 
-  const handleOpenExternal = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
+  // クッションページ読み込み時に履歴をクリーンアップし、不要な履歴スタックの蓄積を防ぐ
+  useEffect(() => {
     try {
-      const newWindow = window.open(targetUrl, "_blank", "noopener,noreferrer");
-      if (newWindow) {
-        newWindow.opener = null;
+      // 履歴エントリを安全に置換
+      window.history.replaceState({ isCushion: true }, "", window.location.pathname);
+    } catch {
+      // noop
+    }
+  }, []);
+
+  const handleOpenExternal = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // デフォルト動作を確実にキャンセル
+    e.preventDefault();
+    e.stopPropagation();
+
+    // 1. 外部サイトへ飛ぶ直前に、現在の履歴をアプリトップ（/）に置換しておく
+    // これにより、もし同一タブやWebView等で親サイトからブラウザの「戻る」が実行された場合でも、
+    // クッションページに閉じ込められず直ちにアプリトップに戻る
+    try {
+      window.history.replaceState(null, "", "/");
+    } catch {
+      // noop
+    }
+
+    // 2. モバイル・各種ブラウザで確実に新規タブを開くための動的a要素トリガー
+    try {
+      const dynamicLink = document.createElement("a");
+      dynamicLink.href = targetUrl;
+      dynamicLink.target = "_blank";
+      dynamicLink.rel = "noopener noreferrer";
+      dynamicLink.style.display = "none";
+      document.body.appendChild(dynamicLink);
+      dynamicLink.click();
+      setTimeout(() => {
+        try {
+          document.body.removeChild(dynamicLink);
+        } catch {
+          // noop
+        }
+      }, 300);
+    } catch {
+      // 3. フォールバック: window.open
+      try {
+        const newWindow = window.open(targetUrl, "_blank", "noopener,noreferrer");
+        if (newWindow) {
+          newWindow.opener = null;
+        }
+      } catch {
+        // 4. 万一すべてブロックされた場合
+        window.location.replace(targetUrl);
       }
-    } catch (err) {
-      console.error("Failed to open external window:", err);
     }
   };
 
@@ -172,6 +215,7 @@ export default function CushionLayout({
             <nav aria-label="フッターナビゲーション" className="flex flex-col items-start gap-2 text-slate-500">
               <Link
                 href="/privacy"
+                replace
                 className="group inline-flex items-center gap-2 hover:text-slate-800 transition-colors"
               >
                 <span className="h-3.5 w-1 rounded-full bg-slate-800 group-hover:bg-slate-950 transition-colors shrink-0" />
@@ -179,6 +223,7 @@ export default function CushionLayout({
               </Link>
               <Link
                 href="/contact"
+                replace
                 className="group inline-flex items-center gap-2 hover:text-slate-800 transition-colors"
               >
                 <span className="h-3.5 w-1 rounded-full bg-slate-800 group-hover:bg-slate-950 transition-colors shrink-0" />
@@ -186,6 +231,7 @@ export default function CushionLayout({
               </Link>
               <Link
                 href="/about"
+                replace
                 className="group inline-flex items-center gap-2 hover:text-slate-800 transition-colors"
               >
                 <span className="h-3.5 w-1 rounded-full bg-slate-800 group-hover:bg-slate-950 transition-colors shrink-0" />
