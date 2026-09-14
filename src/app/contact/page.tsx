@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Mail } from "lucide-react";
 import CushionLayout from "@/components/Cushion/CushionLayout";
 import { APP_NAME, SITE_URL } from "@/constants";
 
@@ -23,9 +22,9 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <CushionLayout
+      type="contact"
       title="お問い合わせ"
       badge="Contact Us"
-      icon={Mail}
       targetUrl="https://www.hit-tool.com/contact"
       buttonLabel="お問い合わせページを開く"
       targetName="お問い合わせ"

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { ShieldCheck } from "lucide-react";
 import CushionLayout from "@/components/Cushion/CushionLayout";
 import { APP_NAME, SITE_URL } from "@/constants";
 
@@ -23,9 +22,9 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <CushionLayout
+      type="privacy"
       title="プライバシーポリシー"
       badge="Privacy Policy"
-      icon={ShieldCheck}
       targetUrl="https://www.hit-tool.com/privacy"
       buttonLabel="プライバシーポリシーを確認する"
       targetName="プライバシーポリシー"

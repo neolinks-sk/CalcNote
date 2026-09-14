@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Building2 } from "lucide-react";
 import CushionLayout from "@/components/Cushion/CushionLayout";
 import { APP_NAME, SITE_URL } from "@/constants";
 
@@ -23,9 +22,9 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <CushionLayout
+      type="about"
       title="運営者情報"
       badge="About Us"
-      icon={Building2}
       targetUrl="https://www.hit-tool.com/about"
       buttonLabel="運営者情報を確認する"
       targetName="運営者情報"

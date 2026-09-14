@@ -1,31 +1,57 @@
-import type { LucideIcon } from "lucide-react";
+"use client";
+
 import Link from "next/link";
 import {
   ArrowRight,
+  Building2,
   Calculator,
   ChevronRight,
   ExternalLink,
   Home,
+  Mail,
+  ShieldCheck,
 } from "lucide-react";
 import { APP_NAME } from "@/constants";
 
+export type CushionType = "privacy" | "contact" | "about";
+
 interface CushionLayoutProps {
+  type: CushionType;
   title: string;
   badge: string;
-  icon: LucideIcon;
   targetUrl: string;
   buttonLabel: string;
   targetName: string;
 }
 
+const ICON_MAP = {
+  privacy: ShieldCheck,
+  contact: Mail,
+  about: Building2,
+};
+
 export default function CushionLayout({
+  type,
   title,
   badge,
-  icon: Icon,
   targetUrl,
   buttonLabel,
   targetName,
 }: CushionLayoutProps) {
+  const Icon = ICON_MAP[type];
+
+  const handleOpenExternal = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // 確実に新しい独立ウィンドウ/タブとして開き、window.openerの参照を完全に切断する
+    e.preventDefault();
+    const newWindow = window.open(targetUrl, "_blank", "noopener,noreferrer");
+    if (newWindow) {
+      newWindow.opener = null;
+    } else {
+      // ポップアップブロック等で開けなかった場合のフォールバック
+      window.location.href = targetUrl;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-between">
       {/* 共通ナビゲーションヘッダー */}
@@ -105,6 +131,7 @@ export default function CushionLayout({
                 href={targetUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={handleOpenExternal}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-800 px-5 py-3.5 text-sm sm:text-base font-bold text-white shadow-md transition hover:bg-slate-700 active:scale-98"
               >
                 <span>{buttonLabel}</span>
@@ -123,6 +150,7 @@ export default function CushionLayout({
             <div className="mt-8 border-t border-slate-100 pt-6">
               <Link
                 href="/"
+                replace
                 className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-500 hover:text-slate-800 transition"
               >
                 <span>← アプリへ戻る</span>
