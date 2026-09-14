@@ -55,9 +55,6 @@ export default function HistoryItemRow({ item, index, isLast }: HistoryItemProps
       setIsMemoOpen(false);
       updateItemMemo(item.id, "");
     }
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    }
   };
 
   const handleCarryOver = (e: React.MouseEvent) => {
@@ -333,11 +330,6 @@ export default function HistoryItemRow({ item, index, isLast }: HistoryItemProps
               onClick={(e) => e.stopPropagation()}
               onFocus={() => {
                 setActiveItemId(item.id);
-                if (typeof window !== "undefined") {
-                  window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-                  requestAnimationFrame(() => window.scrollTo(0, 0));
-                  setTimeout(() => window.scrollTo(0, 0), 50);
-                }
               }}
               onBlur={handleMemoBlur}
               maxLength={MEMO_MAX_LENGTH}

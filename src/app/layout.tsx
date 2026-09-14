@@ -61,8 +61,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ja" className={`${notoSansJP.variable} h-dvh antialiased`}>
-      <body className="min-h-dvh flex flex-col bg-slate-100 font-sans">{children}</body>
+    <html lang="ja" className={`${notoSansJP.variable} min-h-screen antialiased`}>
+      <body className="min-h-screen flex flex-col bg-slate-100 font-sans">{children}</body>
     </html>
   );
 }

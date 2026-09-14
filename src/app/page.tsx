@@ -54,31 +54,6 @@ export default function Home() {
 
   const fileName = buildExportFileName(sheet?.title ?? "calcnote");
 
-  // モバイル入力時の画面横揺れ・不要なwindowスクロールの自動防止
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const handleFocusIn = () => {
-      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-      requestAnimationFrame(() => window.scrollTo(0, 0));
-    };
-
-    const handleScroll = () => {
-      // window全体の横スクロールや不要な縦スクロールが発生した場合にリセット
-      if (window.scrollX !== 0 || (window.scrollY !== 0 && !document.querySelector(".modal-open"))) {
-        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-      }
-    };
-
-    window.addEventListener("focusin", handleFocusIn, { passive: true });
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("focusin", handleFocusIn);
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
   const handleGlobalBackgroundClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement | null;
     if (
@@ -133,7 +108,7 @@ export default function Home() {
 
   if (!hasHydrated || !sheet) {
     return (
-      <div className="flex min-h-dvh items-center justify-center text-sm text-slate-400">
+      <div className="flex min-h-screen items-center justify-center text-sm text-slate-400">
         読み込み中…
       </div>
     );
@@ -146,15 +121,17 @@ export default function Home() {
       </Suspense>
 
       <div
-        className={`flex h-dvh w-full max-w-[100vw] overflow-x-hidden flex-col ${
+        className={`flex min-h-screen w-full max-w-[100vw] overflow-x-hidden flex-col bg-slate-100 ${
           isExporting ? "pointer-events-none select-none" : ""
         }`}
         onClick={handleGlobalBackgroundClick}
       >
+        {/* シート選択ヘッダー */}
         <SheetSelector onExport={handleExport} isExporting={isExporting} />
 
-        <div className="flex min-h-0 flex-1 flex-col sm:items-center sm:justify-center sm:overflow-y-auto sm:py-3">
-          <div className="mx-auto flex w-full min-h-0 max-w-[500px] flex-1 flex-col bg-white sm:flex-none sm:h-[min(760px,calc(100dvh-88px))] sm:rounded-2xl sm:shadow-lg sm:ring-1 sm:ring-slate-200">
+        {/* 電卓本体エリア */}
+        <main className="w-full flex-1 flex flex-col items-center justify-start px-0 sm:px-4 sm:py-4">
+          <div className="mx-auto flex w-full min-h-[520px] h-[calc(100dvh-54px)] max-w-[500px] flex-col bg-white sm:h-[min(760px,calc(100dvh-88px))] sm:rounded-2xl sm:shadow-lg sm:ring-1 sm:ring-slate-200">
             <DrawingToolbar />
 
             <div ref={cardRef} className="relative flex min-h-0 flex-1 flex-col bg-white">
@@ -171,7 +148,10 @@ export default function Home() {
 
             <Keypad />
           </div>
-        </div>
+        </main>
+
+        {/* SEO・お役立ちコラム・FAQ・フッターセクション */}
+        <SeoExplanation />
       </div>
 
       {/* エクスポート中の全画面タッチガード＆ローディングインジケータ */}
@@ -189,8 +169,6 @@ export default function Home() {
           </div>
         </div>
       )}
-
-      <SeoExplanation />
 
       <AllClearConfirmModal />
 

@@ -236,15 +236,6 @@ export default function SeoExplanation() {
         </div>
 
         <footer className="pt-4 text-center text-xs text-slate-400">
-          <div className="mb-2 flex items-center justify-center gap-4 text-xs font-medium text-slate-500">
-            <Link href="/" className="hover:text-slate-800 transition">
-              アプリトップ
-            </Link>
-            <span>•</span>
-            <Link href="/column" className="hover:text-slate-800 transition">
-              お役立ちコラム
-            </Link>
-          </div>
           <p>© 2026 CalcNote. All rights reserved.</p>
         </footer>
       </div>

@@ -60,20 +60,10 @@ export default function HistoryList() {
             type="text"
             value={sheet.title}
             onClick={(e) => e.stopPropagation()}
-            onFocus={() => {
-              if (typeof window !== "undefined") {
-                window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-                requestAnimationFrame(() => window.scrollTo(0, 0));
-                setTimeout(() => window.scrollTo(0, 0), 50);
-              }
-            }}
             onChange={(e) => renameSheet(sheet.id, e.target.value)}
             onBlur={(e) => {
               const trimmed = e.target.value.trim();
               renameSheet(sheet.id, trimmed === "" ? DEFAULT_SHEET_TITLE : trimmed.slice(0, 60));
-              if (typeof window !== "undefined") {
-                window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-              }
             }}
             placeholder={DEFAULT_SHEET_TITLE}
             aria-label="シート名"
