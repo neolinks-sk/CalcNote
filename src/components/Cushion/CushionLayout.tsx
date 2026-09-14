@@ -41,17 +41,14 @@ export default function CushionLayout({
   const Icon = ICON_MAP[type];
 
   const handleOpenExternal = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // スマホ・PC環境問わず、同一タブ遷移（戻るでアプリに迷い戻る現象）を完全に防止
+    e.preventDefault();
     try {
-      const newTab = window.open(targetUrl, "_blank", "noopener,noreferrer");
-      if (newTab) {
-        newTab.opener = null;
-        e.preventDefault(); // window.openが成功した場合はネイティブ挙動をキャンセルして二重オープンを防止
+      const newWindow = window.open(targetUrl, "_blank", "noopener,noreferrer");
+      if (newWindow) {
+        newWindow.opener = null;
       }
-      // モバイルSafari等のポップアップ制御でnewTabがnullの場合はpreventDefaultせず、
-      // <a> タグの target="_blank" rel="noopener noreferrer" によるネイティブ新タブ遷移を実行させる
-    } catch {
-      // 例外時も <a> タグのネイティブ target="_blank" に委ねる
+    } catch (err) {
+      console.error("Failed to open external window:", err);
     }
   };
 
@@ -131,11 +128,12 @@ export default function CushionLayout({
             {/* 外部サイト誘導メインボタン */}
             <div className="mt-6">
               <a
-                href={targetUrl}
+                href="#"
                 target="_blank"
                 rel="noopener noreferrer"
+                role="button"
                 onClick={handleOpenExternal}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-800 px-5 py-3.5 text-sm sm:text-base font-bold text-white shadow-md transition hover:bg-slate-700 active:scale-98"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-800 px-5 py-3.5 text-sm sm:text-base font-bold text-white shadow-md transition hover:bg-slate-700 active:scale-98 cursor-pointer"
               >
                 <span>{buttonLabel}</span>
                 <ExternalLink size={16} className="text-slate-300" />
