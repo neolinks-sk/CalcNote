@@ -389,7 +389,6 @@ export default async function ColumnDetailPage({ params }: PageProps) {
             <nav aria-label="フッターナビゲーション" className="flex flex-col items-start gap-2 text-slate-500">
               <Link
                 href="/privacy"
-                replace
                 className="group inline-flex items-center gap-2 hover:text-slate-800 transition-colors"
               >
                 <span className="h-3.5 w-1 rounded-full bg-slate-800 group-hover:bg-slate-950 transition-colors shrink-0" />
@@ -397,7 +396,6 @@ export default async function ColumnDetailPage({ params }: PageProps) {
               </Link>
               <Link
                 href="/contact"
-                replace
                 className="group inline-flex items-center gap-2 hover:text-slate-800 transition-colors"
               >
                 <span className="h-3.5 w-1 rounded-full bg-slate-800 group-hover:bg-slate-950 transition-colors shrink-0" />
@@ -405,7 +403,6 @@ export default async function ColumnDetailPage({ params }: PageProps) {
               </Link>
               <Link
                 href="/about"
-                replace
                 className="group inline-flex items-center gap-2 hover:text-slate-800 transition-colors"
               >
                 <span className="h-3.5 w-1 rounded-full bg-slate-800 group-hover:bg-slate-950 transition-colors shrink-0" />
