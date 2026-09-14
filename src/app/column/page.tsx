@@ -171,12 +171,39 @@ export default function ColumnListPage() {
       </main>
 
       {/* フッター */}
-      <footer className="border-t border-slate-200 bg-white py-8 text-center text-xs text-slate-500">
-        <div className="mx-auto max-w-5xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <footer className="border-t border-slate-200 bg-white py-8 text-xs text-slate-500">
+        <div className="mx-auto max-w-5xl px-4 flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
           <div className="flex items-center gap-2 font-bold text-slate-800">
-            <Calculator size={14} />
+            <Calculator size={15} />
             <span>{APP_NAME}</span>
           </div>
+          <div className="flex flex-col items-end w-full sm:w-auto">
+            <nav aria-label="フッターナビゲーション" className="flex flex-col items-start gap-2 text-slate-500">
+              <Link
+                href="/privacy"
+                className="group inline-flex items-center gap-2 hover:text-slate-800 transition-colors"
+              >
+                <span className="h-3.5 w-1 rounded-full bg-slate-800 group-hover:bg-slate-950 transition-colors shrink-0" />
+                <span>プライバシーポリシー</span>
+              </Link>
+              <Link
+                href="/contact"
+                className="group inline-flex items-center gap-2 hover:text-slate-800 transition-colors"
+              >
+                <span className="h-3.5 w-1 rounded-full bg-slate-800 group-hover:bg-slate-950 transition-colors shrink-0" />
+                <span>お問い合わせ</span>
+              </Link>
+              <Link
+                href="/about"
+                className="group inline-flex items-center gap-2 hover:text-slate-800 transition-colors"
+              >
+                <span className="h-3.5 w-1 rounded-full bg-slate-800 group-hover:bg-slate-950 transition-colors shrink-0" />
+                <span>運営者情報</span>
+              </Link>
+            </nav>
+          </div>
+        </div>
+        <div className="mt-6 text-center text-[11px] text-slate-400">
           <p>© 2026 CalcNote. All rights reserved.</p>
         </div>
       </footer>
