@@ -94,22 +94,14 @@ textarea {
   display: none !important;
 }
 
-/* 計算結果の枠・背景・シャドウ・余白を完全に削除し、プレーンな数値テキストとして描画 */
+/* 計算結果の枠・背景・シャドウをクリーン化（文字位置・パディング・境界余白は画面と1:1で完全同期維持） */
 .clean-export-mode .export-clean-result,
 .clean-export-mode button.export-clean-result,
 .clean-export-mode [class*="export-clean-result"] {
-  border: none !important;
-  border-width: 0 !important;
-  border-style: none !important;
-  border-color: transparent !important;
   background-color: transparent !important;
   background: transparent !important;
+  border-color: transparent !important;
   box-shadow: none !important;
-  border-radius: 0 !important;
-  padding-left: 0.25rem !important;
-  padding-right: 0.25rem !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
   --tw-ring-offset-shadow: 0 0 #0000 !important;
   --tw-ring-shadow: 0 0 #0000 !important;
   --tw-shadow: 0 0 #0000 !important;

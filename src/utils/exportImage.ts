@@ -88,6 +88,10 @@ export async function exportNodeAsPng(
       cacheBust: true,
       pixelRatio,
       backgroundColor: "#ffffff",
+      filter: (domNode: HTMLElement) => {
+        // DOMキャプチャ時はlive canvas要素を除外（後からオフスクリーンで高解像度ベクター合成するため、二重描画・ズレを完全防止）
+        return domNode.tagName !== "CANVAS";
+      },
     };
 
     // 5. DOMベース画像（文字・数式・枠線レイヤー）のキャプチャ取得
@@ -185,9 +189,13 @@ async function synthesizeOffscreenImage(params: SynthesisParams): Promise<string
       ctx.lineJoin = "round";
       ctx.beginPath();
 
+      const isLegacyNormalized =
+        stroke.points.some((p) => p.y > 0 && p.y <= 1.0) &&
+        stroke.points.every((p) => p.y <= 1.0);
+
       stroke.points.forEach((p: StrokePoint, i: number) => {
         const px = (box.left + p.x * box.width) * scaleX;
-        const py = (box.top + (p.y <= 1.0 ? p.y * box.height : p.y)) * scaleY;
+        const py = (box.top + (isLegacyNormalized ? p.y * box.height : p.y)) * scaleY;
         if (i === 0) ctx.moveTo(px, py);
         else ctx.lineTo(px, py);
       });

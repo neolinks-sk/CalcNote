@@ -92,10 +92,16 @@ export default function DrawingCanvas({ target = "main" }: DrawingCanvasProps) {
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       ctx.beginPath();
+
+      const isLegacyNormalized =
+        stroke.points.some((p) => p.y > 0 && p.y <= 1.0) &&
+        stroke.points.every((p) => p.y <= 1.0);
+
       stroke.points.forEach((p: StrokePoint, i: number) => {
-        // 相対座標（0〜1）に現在のCanvas寸法を乗算
+        // x: 相対座標（0〜1）に幅を乗算
         const x = p.x * width;
-        const y = p.y <= 1.0 ? p.y * height : p.y;
+        // y: ピクセル座標（通常）または旧データの相対比率
+        const y = isLegacyNormalized ? p.y * height : p.y;
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       });
@@ -140,17 +146,16 @@ export default function DrawingCanvas({ target = "main" }: DrawingCanvasProps) {
     return () => window.removeEventListener("calcnote:force-redraw-canvas", handleForceRedraw);
   }, [redraw]);
 
-  // ポインタ座標を0〜1の相対座標に変換
+  // ポインタ座標を x: 幅に対する相対座標(0〜1), y: コンテナ上端からのCSSピクセル座標 に変換
   const relativePoint = (e: ReactPointerEvent<HTMLCanvasElement>): StrokePoint => {
     const canvas = canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
     const width = rect.width || 1;
-    const height = rect.height || 1;
     const x = (e.clientX - rect.left) / width;
-    const y = (e.clientY - rect.top) / height;
+    const y = e.clientY - rect.top;
     return {
       x: Math.min(1, Math.max(0, x)),
-      y: Math.min(1, Math.max(0, y)),
+      y: Math.max(0, y),
     };
   };
 
