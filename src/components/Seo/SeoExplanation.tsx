@@ -206,7 +206,7 @@ export default function SeoExplanation() {
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white py-2.5 text-xs sm:text-sm font-bold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:border-slate-400 active:scale-98"
             >
               <BookOpen size={15} />
-              <span>お役立ちコラム一覧を見る（全{COLUMNS.length}編）</span>
+              <span>お役立ちコラム一覧を見る</span>
               <ArrowRight size={14} />
             </Link>
           </div>

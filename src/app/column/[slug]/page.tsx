@@ -14,7 +14,6 @@ import {
   ImageDown,
   Info,
   PenLine,
-  Sparkles,
   Tag,
 } from "lucide-react";
 import {
@@ -145,13 +144,6 @@ export default async function ColumnDetailPage({ params }: PageProps) {
               <BookOpen size={14} />
               <span>コラム一覧</span>
             </Link>
-            <Link
-              href={`/?tab=${column.targetTab}`}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-slate-800 px-3 py-1.5 text-xs sm:text-sm font-bold text-white shadow-xs transition hover:bg-slate-700 active:scale-95"
-            >
-              <span>アプリで試す</span>
-              <ArrowRight size={14} />
-            </Link>
           </div>
         </div>
       </header>
@@ -279,8 +271,7 @@ export default async function ColumnDetailPage({ params }: PageProps) {
 
           {/* 記事末尾のアプリ連携CTAエリア */}
           <div className="mt-12 rounded-2xl border border-slate-300 bg-linear-to-br from-slate-900 to-slate-800 p-6 sm:p-8 text-white shadow-lg">
-            <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
-              <Sparkles size={16} />
+            <div className="flex items-center text-xs font-bold text-emerald-400">
               <span>CalcNote で今すぐ実践</span>
             </div>
 
@@ -298,7 +289,7 @@ export default async function ColumnDetailPage({ params }: PageProps) {
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-3.5 text-sm sm:text-base transition shadow-md active:scale-98"
               >
                 <TabIcon size={18} />
-                <span>CalcNote で試してみる（無料）</span>
+                <span>CalcNote で試してみる</span>
                 <ArrowRight size={16} />
               </Link>
 

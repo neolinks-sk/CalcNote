@@ -35,6 +35,7 @@ interface CalcState extends PersistedState {
   errorMessage: string | null;
   hasHydrated: boolean;
   isAllClearModalOpen: boolean;
+  isKeypadVisible: boolean;
 
   // --- 手書きツール状態（永続化しない） ---
   mode: DrawMode;
@@ -90,6 +91,10 @@ interface CalcState extends PersistedState {
   setMode: (mode: DrawMode) => void;
   setPenColor: (color: string) => void;
   setPenWidth: (width: number) => void;
+
+  // --- テンキー表示切替 ---
+  toggleKeypad: () => void;
+  setKeypadVisible: (visible: boolean) => void;
 
   clearErrorMessage: () => void;
   setHasHydrated: (v: boolean) => void;
@@ -165,6 +170,7 @@ export const useCalcStore = create<CalcState>()(
         hasHydrated: false,
         isAllClearModalOpen: false,
         isSampleState: false,
+        isKeypadVisible: true,
         dismissedTooltips: {},
         mode: "text",
         penColor: PEN_COLORS[0].color,
@@ -773,6 +779,8 @@ export const useCalcStore = create<CalcState>()(
         },
         setPenColor: (color) => set({ penColor: color }),
         setPenWidth: (width) => set({ penWidth: width }),
+        toggleKeypad: () => set((state) => ({ isKeypadVisible: !state.isKeypadVisible })),
+        setKeypadVisible: (visible) => set({ isKeypadVisible: visible }),
         clearErrorMessage: () => set({ errorMessage: null }),
         setHasHydrated: (v) => set({ hasHydrated: v }),
       };

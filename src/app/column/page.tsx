@@ -8,7 +8,6 @@ import {
   Calendar,
   ChevronRight,
   Home,
-  Sparkles,
   Tag,
 } from "lucide-react";
 import { COLUMNS } from "@/data/columns";
@@ -74,8 +73,7 @@ export default function ColumnListPage() {
       {/* ヒーローセクション */}
       <section className="border-b border-slate-200 bg-white px-4 py-10 sm:py-14">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
-            <Sparkles size={13} className="text-emerald-600" />
+          <div className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
             <span>CalcNote 活用ガイド＆お役立ち情報</span>
           </div>
 
@@ -151,8 +149,7 @@ export default function ColumnListPage() {
         <div className="mt-12 rounded-2xl border border-slate-200 bg-linear-to-r from-slate-900 to-slate-800 p-6 sm:p-8 text-white shadow-md">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-400">
-                <Sparkles size={14} />
+              <span className="inline-flex items-center text-xs font-bold text-emerald-400">
                 完全無料・登録不要
               </span>
               <h3 className="mt-1 text-lg sm:text-xl font-bold">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, ImageDown, Loader2, Plus, Save, Trash2, X } from "lucide-react";
+import { Calculator, CheckCircle2, ImageDown, Loader2, Plus, Save, Trash2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCalcStore } from "@/store/useCalcStore";
 import { APP_NAME } from "@/constants";
@@ -18,6 +18,8 @@ export default function SheetSelector({ onExport, isExporting }: SheetSelectorPr
   const createSheet = useCalcStore((s) => s.createSheet);
   const deleteSheet = useCalcStore((s) => s.deleteSheet);
   const saveCurrentSheet = useCalcStore((s) => s.saveCurrentSheet);
+  const isKeypadVisible = useCalcStore((s) => s.isKeypadVisible);
+  const toggleKeypad = useCalcStore((s) => s.toggleKeypad);
   const isSampleState = useCalcStore((s) => s.isSampleState);
   const dismissedTooltips = useCalcStore((s) => s.dismissedTooltips);
   const dismissTooltip = useCalcStore((s) => s.dismissTooltip);
@@ -104,7 +106,7 @@ export default function SheetSelector({ onExport, isExporting }: SheetSelectorPr
           className="flex h-8.5 shrink-0 items-center justify-center gap-1 rounded-lg border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2 sm:px-2.5 text-xs font-bold transition active:scale-90 shadow-2xs"
         >
           <Save size={14} className="text-emerald-600" />
-          <span>保存</span>
+          <span className="hidden sm:inline">保存</span>
         </button>
 
         {/* 新規シート作成ボタン ＆ 案内吹き出し */}
@@ -143,6 +145,21 @@ export default function SheetSelector({ onExport, isExporting }: SheetSelectorPr
             )}
           </AnimatePresence>
         </div>
+
+        {/* テンキー表示/非表示切替ボタン */}
+        <button
+          type="button"
+          onClick={toggleKeypad}
+          aria-label={isKeypadVisible ? "テンキーを隠す" : "テンキーを表示"}
+          title={isKeypadVisible ? "テンキーを隠してメモ・計算エリアを広げる" : "テンキーを表示する"}
+          className={`flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-lg border transition active:scale-90 shadow-2xs ${
+            isKeypadVisible
+              ? "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+              : "border-slate-800 bg-slate-800 text-white hover:bg-slate-700"
+          }`}
+        >
+          <Calculator size={16} />
+        </button>
 
         {/* 削除ボタン */}
         <button
