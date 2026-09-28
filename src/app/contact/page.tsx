@@ -25,7 +25,7 @@ export default function ContactPage() {
       type="contact"
       title="お問い合わせ"
       badge="Contact Us"
-      targetUrl="https://www.hit-tool.com/contact"
+      targetUrl="https://hit-tool.com/contact"
       buttonLabel="お問い合わせページを開く"
       targetName="お問い合わせ"
     />

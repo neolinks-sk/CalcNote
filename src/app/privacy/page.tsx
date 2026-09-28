@@ -25,7 +25,7 @@ export default function PrivacyPage() {
       type="privacy"
       title="プライバシーポリシー"
       badge="Privacy Policy"
-      targetUrl="https://www.hit-tool.com/privacy"
+      targetUrl="https://hit-tool.com/privacy"
       buttonLabel="プライバシーポリシーを確認する"
       targetName="プライバシーポリシー"
     />

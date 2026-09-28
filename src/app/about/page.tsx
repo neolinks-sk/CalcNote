@@ -25,7 +25,7 @@ export default function AboutPage() {
       type="about"
       title="運営者情報"
       badge="About Us"
-      targetUrl="https://www.hit-tool.com/about"
+      targetUrl="https://hit-tool.com/about"
       buttonLabel="運営者情報を確認する"
       targetName="運営者情報"
     />

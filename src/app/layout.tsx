@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Noto_Sans_JP } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import { SITE_URL } from "@/constants";
 
 const notoSansJP = Noto_Sans_JP({
   variable: "--font-noto-sans-jp",
@@ -11,7 +10,7 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL("https://hit-tool.com"),
   title: "CalcNote - メモ＆手書きができる無料Web電卓アプリ",
   description:
     "計算結果にテキストメモや手書き注記を追加できる無料Web電卓アプリ。割り勘やDIY等の計算結果を綺麗に画像化して共有可能。登録不要・完全無料で即座に使えます。",
@@ -27,19 +26,19 @@ export const metadata: Metadata = {
     "hit-tool.com",
   ],
   alternates: {
-    canonical: SITE_URL,
+    canonical: "/calcnote",
   },
   openGraph: {
     title: "CalcNote - メモ＆手書きができる無料Web電卓アプリ",
     description:
       "計算結果にテキストメモや手書き注記を追加できる無料Web電卓アプリ。割り勘やDIY等の計算結果を綺麗に画像化して共有可能。登録不要・完全無料で即座に使えます。",
-    url: SITE_URL,
+    url: "/calcnote",
     siteName: "CalcNote",
     locale: "ja_JP",
     type: "website",
     images: [
       {
-        url: "https://hit-tool.com/calcnote/ogp.png",
+        url: "/calcnote/ogp.png",
         width: 1200,
         height: 630,
         alt: "CalcNote - メモ＆手書きができる無料Web電卓アプリ",
@@ -51,7 +50,7 @@ export const metadata: Metadata = {
     title: "CalcNote - メモ＆手書きができる無料Web電卓アプリ",
     description:
       "計算結果にテキストメモや手書き注記を追加できる無料Web電卓アプリ。割り勘やDIY等の計算結果を綺麗に画像化して共有可能。登録不要・完全無料で即座に使えます。",
-    images: ["https://hit-tool.com/calcnote/ogp.png"],
+    images: ["/calcnote/ogp.png"],
   },
   robots: {
     index: true,
