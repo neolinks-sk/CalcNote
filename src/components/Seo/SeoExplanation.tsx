@@ -77,7 +77,7 @@ const USE_CASES = [
   },
 ];
 
-const FAQS = [
+export const FAQS = [
   {
     q: "会員登録や料金は必要ですか？",
     a: "不要です。完全無料で今すぐお使いいただけます。",

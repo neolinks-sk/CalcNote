@@ -1,0 +1,184 @@
+"use client";
+
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import SheetSelector from "@/components/Header/SheetSelector";
+import HistoryList from "@/components/History/HistoryList";
+import DrawingToolbar from "@/components/Drawing/DrawingToolbar";
+import Keypad from "@/components/Calculator/Keypad";
+import AllClearConfirmModal from "@/components/Calculator/AllClearConfirmModal";
+import ImageCardModal from "@/components/Export/ImageCardModal";
+import { useCalcStore } from "@/store/useCalcStore";
+import { CREDIT_TEXT, HISTORY_AREA_MIN_HEIGHT } from "@/constants";
+import { buildExportFileName, exportNodeAsPng } from "@/utils/exportImage";
+import type { Stroke } from "@/types";
+import { Loader2 } from "lucide-react";
+
+/**
+ * URLクエリパラメータ (?tab=calculator | handwriting | export) に応じて
+ * モード切替やフォーカス誘導を行うハンドラー
+ */
+function TabQueryHandler() {
+  const searchParams = useSearchParams();
+  const setMode = useCalcStore((s) => s.setMode);
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (!tab) return;
+
+    if (tab === "handwriting") {
+      setMode("draw");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (tab === "calculator") {
+      setMode("text");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (tab === "export") {
+      setMode("text");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [searchParams, setMode]);
+
+  return null;
+}
+
+interface CalcNoteClientProps {
+  children?: React.ReactNode;
+}
+
+export default function CalcNoteClient({ children }: CalcNoteClientProps) {
+  const hasHydrated = useCalcStore((s) => s.hasHydrated);
+  const sheet = useCalcStore((s) => s.getCurrentSheet());
+  const clearActiveItem = useCalcStore((s) => s.clearActiveItem);
+
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  const fileName = buildExportFileName(sheet?.title ?? "calcnote");
+
+  const handleGlobalBackgroundClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement | null;
+    if (
+      target &&
+      (target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.closest("button") ||
+        target.closest("input") ||
+        target.closest("textarea"))
+    ) {
+      return;
+    }
+    clearActiveItem();
+    if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  };
+
+  const handleExport = async () => {
+    if (!cardRef.current || isExporting) return;
+    if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    clearActiveItem();
+    setIsExporting(true);
+    setIsModalOpen(true);
+    setImageUrl(null);
+    try {
+      // 現在のストロークデータを取得
+      let strokes: Stroke[] = [];
+      if (sheet?.strokeData) {
+        try {
+          const parsed = JSON.parse(sheet.strokeData);
+          if (Array.isArray(parsed)) strokes = parsed;
+        } catch {
+          strokes = [];
+        }
+      }
+
+      // フォーカス解除のレンダリング反映待ち
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      const dataUrl = await exportNodeAsPng(cardRef.current, strokes);
+      setImageUrl(dataUrl);
+    } catch (e) {
+      console.error("[CalcNote] 画像生成に失敗しました", e);
+      setIsModalOpen(false);
+      window.alert("画像の生成に失敗しました。もう一度お試しください。");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  return (
+    <>
+      <Suspense fallback={null}>
+        <TabQueryHandler />
+      </Suspense>
+
+      <div
+        className={`flex min-h-screen w-full max-w-[100vw] overflow-x-hidden flex-col bg-slate-100 ${
+          isExporting ? "pointer-events-none select-none" : ""
+        }`}
+        onClick={handleGlobalBackgroundClick}
+      >
+        {/* シート選択ヘッダー */}
+        <SheetSelector onExport={handleExport} isExporting={isExporting} />
+
+        {/* 電卓本体エリア */}
+        <main className="w-full flex-1 flex flex-col items-center justify-start px-0 sm:px-4 sm:py-4">
+          <div className="mx-auto flex w-full min-h-[520px] h-[calc(100dvh-54px)] max-w-[500px] flex-col bg-white sm:h-[min(760px,calc(100dvh-88px))] sm:rounded-2xl sm:shadow-lg sm:ring-1 sm:ring-slate-200">
+            <DrawingToolbar />
+
+            <div ref={cardRef} className="relative flex min-h-0 flex-1 flex-col bg-white">
+              <div
+                className="relative min-h-0 flex-1 flex flex-col"
+                style={{ minHeight: HISTORY_AREA_MIN_HEIGHT }}
+              >
+                {!hasHydrated || !sheet ? (
+                  <div className="flex flex-1 items-center justify-center text-sm text-slate-400">
+                    読み込み中…
+                  </div>
+                ) : (
+                  <HistoryList />
+                )}
+              </div>
+              <div className="export-show select-none border-t border-slate-100/70 px-3 py-1.5 text-right text-[10px] tracking-wide text-slate-400">
+                {CREDIT_TEXT}
+              </div>
+            </div>
+
+            <Keypad />
+          </div>
+        </main>
+
+        {/* SEO・お役立ちコラム・FAQ・フッターセクション（Server Componentとして注入） */}
+        {children}
+      </div>
+
+      {/* エクスポート中の全画面タッチガード＆ローディングインジケータ */}
+      {isExporting && !imageUrl && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/40 backdrop-blur-xs text-white select-none"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <div className="flex flex-col items-center gap-3 rounded-2xl bg-slate-900/90 px-6 py-5 shadow-2xl ring-1 ring-white/20">
+            <Loader2 size={32} className="animate-spin text-emerald-400" />
+            <p className="text-sm font-bold tracking-wide text-white">
+              画像を生成中…
+            </p>
+          </div>
+        </div>
+      )}
+
+      <AllClearConfirmModal />
+
+      <ImageCardModal
+        isOpen={isModalOpen}
+        imageUrl={imageUrl}
+        fileName={fileName}
+        onClose={() => setIsModalOpen(false)}
+      />
+    </>
+  );
+}
