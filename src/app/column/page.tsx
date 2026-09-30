@@ -77,7 +77,7 @@ export default function ColumnListPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="min-h-screen bg-slate-50 text-slate-800">
+      <div className="min-h-screen bg-slate-100 text-slate-800">
         {/* 共通ナビゲーションヘッダー */}
         <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur shadow-2xs">
           <div className="mx-auto flex max-w-5xl items-center justify-between">

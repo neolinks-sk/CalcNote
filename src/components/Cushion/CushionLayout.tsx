@@ -55,7 +55,7 @@ export default function CushionLayout({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-between">
+    <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col justify-between">
       {/* 共通ナビゲーションヘッダー */}
       <div>
         <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur shadow-2xs">
