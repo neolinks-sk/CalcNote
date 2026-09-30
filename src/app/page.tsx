@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import CalcNoteClient from "./_components/CalcNoteClient";
 import SeoExplanation, { FAQS } from "@/components/Seo/SeoExplanation";
+import { APP_NAME, SITE_URL } from "@/constants";
 
 export const metadata: Metadata = {
   title: "CalcNote - メモ＆手書きができる無料Web電卓アプリ",
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
     description:
       "計算結果にテキストメモや手書き注記を追加できる無料Web電卓アプリ。割り勘やDIY等の計算結果を綺麗に画像化して共有可能。登録不要・完全無料で即座に使えます。",
     url: "/calcnote",
-    siteName: "CalcNote",
+    siteName: APP_NAME,
     locale: "ja_JP",
     type: "website",
     images: [
@@ -41,9 +42,9 @@ export default function Home() {
     "@graph": [
       {
         "@type": "WebApplication",
-        "@id": "https://hit-tool.com/calcnote/#webapp",
-        "name": "CalcNote",
-        "url": "https://hit-tool.com/calcnote",
+        "@id": `${SITE_URL}/#webapp`,
+        "name": APP_NAME,
+        "url": SITE_URL,
         "description":
           "計算結果にテキストメモや手書き注記を追加できる無料Web電卓アプリ。割り勘やDIY等の計算結果を綺麗に画像化して共有可能。登録不要・完全無料で即座に使えます。",
         "applicationCategory": "UtilityApplication",
@@ -55,8 +56,26 @@ export default function Home() {
         },
       },
       {
+        "@type": "BreadcrumbList",
+        "@id": `${SITE_URL}/#breadcrumb`,
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "ホーム",
+            "item": "https://hit-tool.com",
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": APP_NAME,
+            "item": SITE_URL,
+          },
+        ],
+      },
+      {
         "@type": "FAQPage",
-        "@id": "https://hit-tool.com/calcnote/#faq",
+        "@id": `${SITE_URL}/#faq`,
         "mainEntity": FAQS.map((faq) => ({
           "@type": "Question",
           "name": faq.q,
