@@ -73,9 +73,9 @@ export default function SheetSelector({ onExport, isExporting }: SheetSelectorPr
       className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur px-2 sm:px-3 py-2 shadow-xs"
     >
       <div className="mx-auto flex max-w-[500px] items-center gap-1 sm:gap-1.5">
-        <span className="shrink-0 text-base sm:text-lg font-bold tracking-tight text-slate-800 mr-0.5">
+        <h1 className="shrink-0 text-base sm:text-lg font-bold tracking-tight text-slate-800 mr-0.5">
           {APP_NAME}
-        </span>
+        </h1>
 
         {/* シート選択プルダウンメニュー */}
         <div className="relative min-w-0 flex-1">
