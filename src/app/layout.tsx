@@ -11,9 +11,9 @@ const notoSansJP = Noto_Sans_JP({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://hit-tool.com"),
-  title: "CalcNote - メモ＆手書きができる無料Web電卓アプリ",
+  title: "CalcNote｜メモ＆手書きができる無料Web電卓アプリ",
   description:
-    "計算結果にテキストメモや手書き注記を追加できる無料Web電卓アプリ。割り勘やDIY等の計算結果を綺麗に画像化して共有可能。登録不要・完全無料で即座に使えます。",
+    "計算過程や結果にテキスト・手書きメモを残してそのまま画像保存・共有できる無料Web電卓ツール。割り勘や買い物、DIYなど後で見返すための計算結果を、一目でわかりやすく記録・共有できます。会員登録不要・完全無料でスマホやPCから今すぐ利用可能です。",
   applicationName: "CalcNote",
   keywords: [
     "CalcNote",
@@ -29,9 +29,9 @@ export const metadata: Metadata = {
     canonical: "/calcnote",
   },
   openGraph: {
-    title: "CalcNote - メモ＆手書きができる無料Web電卓アプリ",
+    title: "CalcNote｜メモ＆手書きができる無料Web電卓アプリ",
     description:
-      "計算結果にテキストメモや手書き注記を追加できる無料Web電卓アプリ。割り勘やDIY等の計算結果を綺麗に画像化して共有可能。登録不要・完全無料で即座に使えます。",
+      "計算過程や結果にテキスト・手書きメモを残してそのまま画像保存・共有できる無料Web電卓ツール。割り勘や買い物、DIYなど後で見返すための計算結果を、一目でわかりやすく記録・共有できます。会員登録不要・完全無料でスマホやPCから今すぐ利用可能です。",
     url: "/calcnote",
     siteName: "CalcNote",
     locale: "ja_JP",
@@ -41,15 +41,15 @@ export const metadata: Metadata = {
         url: "/calcnote/ogp.png",
         width: 1200,
         height: 630,
-        alt: "CalcNote - メモ＆手書きができる無料Web電卓アプリ",
+        alt: "CalcNote｜メモ＆手書きができる無料Web電卓アプリ",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CalcNote - メモ＆手書きができる無料Web電卓アプリ",
+    title: "CalcNote｜メモ＆手書きができる無料Web電卓アプリ",
     description:
-      "計算結果にテキストメモや手書き注記を追加できる無料Web電卓アプリ。割り勘やDIY等の計算結果を綺麗に画像化して共有可能。登録不要・完全無料で即座に使えます。",
+      "計算過程や結果にテキスト・手書きメモを残してそのまま画像保存・共有できる無料Web電卓ツール。割り勘や買い物、DIYなど後で見返すための計算結果を、一目でわかりやすく記録・共有できます。会員登録不要・完全無料でスマホやPCから今すぐ利用可能です。",
     images: ["/calcnote/ogp.png"],
   },
   robots: {
