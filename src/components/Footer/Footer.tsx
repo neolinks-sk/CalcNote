@@ -1,4 +1,5 @@
 import Link from "next/link";
+import logoImg from "../../../public/logo.png";
 
 interface FooterProps {
   className?: string;
@@ -12,6 +13,28 @@ export default function Footer({
   return (
     <footer className={`pt-6 border-t border-slate-200/80 text-xs text-slate-400 ${className}`}>
       <div className={containerClassName}>
+        {/* ポータルサイトロゴ & 補足テキスト */}
+        <div className="flex flex-col items-center text-center mb-6">
+          <a
+            href="https://hit-tool.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center transition hover:opacity-85 mx-auto"
+            aria-label="HITtools"
+          >
+            <img
+              src={logoImg.src}
+              alt="HITtools"
+              className="h-6 sm:h-7 w-auto max-w-[140px] sm:max-w-[160px] object-contain mx-auto"
+            />
+          </a>
+          <p className="mt-2 text-xs leading-relaxed text-slate-500 text-center">
+            日常のちょっとした「困りごと」を、
+            <br />
+            すぐに解決できるWebツールを集めたポータルサイトです
+          </p>
+        </div>
+
         <div className="flex justify-end mb-4">
           <nav aria-label="フッターナビゲーション" className="flex flex-col items-start gap-2 text-slate-500">
             <Link
