@@ -17,7 +17,7 @@ export interface PortalTool {
 
 export const RELATED_TOOLS: PortalTool[] = [
   {
-    title: "レシピ人数変更・調味料g変換｜ケーキ型サイズ変更",
+    title: "レシピ人数変更・調味料g変換 | ケーキ型サイズ変更",
     description:
       "人数の変更やケーキ型のサイズ変更に伴う調味料・材料の分量を自動計算するツール",
     url: "https://hit-tool.com/recipe-calculator",
@@ -33,7 +33,7 @@ export const RELATED_TOOLS: PortalTool[] = [
     icon: ClipboardCheck,
   },
   {
-    title: "冷蔵庫レスキュー｜あまり物でズボラ飯",
+    title: "ズボラレシピ | 冷蔵庫のあまり物で簡単時短レシピ検索",
     description:
       "冷蔵庫に残っている食材から作れるズボラ飯・簡単レシピを提案するツール",
     url: "https://hit-tool.com/zubora-recipe",
@@ -41,7 +41,7 @@ export const RELATED_TOOLS: PortalTool[] = [
     icon: ChefHat,
   },
   {
-    title: "今日の服装ナビ｜天気に合わせた服装提案",
+    title: "今日の服装ナビ | 天気に合わせた服装提案",
     description:
       "気温や天候に合わせた最適なコーディネートや服装を提案するツール",
     url: "https://hit-tool.com/fashion-weather",
